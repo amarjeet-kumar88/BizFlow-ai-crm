@@ -5,6 +5,7 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import prisma from "./prisma/client";
+import routes from "./routes";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ app.use(cors());
 app.use(helmet());
 app.use(compression());
 app.use(cookieParser());
+
+app.use("/api/v1", routes);
 
 app.get("/test-db", async (req, res) => {
   const users = await prisma.user.findMany();
