@@ -1,37 +1,68 @@
-import type { Request, Response, NextFunction } from "express";
+import type {
+  Request,
+  Response,
+  NextFunction,
+} from "express";
 
 import jwt from "jsonwebtoken";
 
-export interface AuthRequest extends Request {
+import prisma from "../prisma/client";
+
+export interface AuthRequest
+  extends Request {
   user?: any;
 }
 
-export const authMiddleware = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const token =
-      req.cookies.accessToken;
+export const authMiddleware =
+  async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
 
-    if (!token) {
+    try {
+
+      const token =
+        req.cookies.accessToken;
+
+      if (!token) {
+
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+
+      }
+
+      const decoded: any =
+        jwt.verify(
+          token,
+          process.env.JWT_SECRET as string
+        );
+
+      const user =
+        await prisma.user.findUnique({
+          where: {
+            id: decoded.userId,
+          },
+        });
+
+      if (!user) {
+
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+
+      }
+
+      req.user = user;
+
+      next();
+
+    } catch (error) {
+
       return res.status(401).json({
         message: "Unauthorized",
       });
+
     }
-
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    );
-
-    req.user = decoded;
-
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-};
+  };
