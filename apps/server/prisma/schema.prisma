@@ -16,78 +16,165 @@ enum Role {
   SUPPORT_AGENT
 }
 
+enum BusinessType {
+  COACHING
+  GYM
+  CLINIC
+  SCHOOL
+  RETAIL
+  REAL_ESTATE
+  SALON
+  TUITION
+  REPAIR
+  CONSULTANT
+}
+
+enum PlanType {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
 model User {
-  id                  String    @id @default(uuid())
+  id                String   @id @default(uuid())
 
-  email               String    @unique
-  password            String
-  name                String
+  email             String   @unique
+  password          String
+  name              String
 
-  role                Role      @default(STAFF)
+  role              Role     @default(STAFF)
 
-  refreshToken        String?
+  refreshToken      String?
 
-  isActive            Boolean   @default(true)
+  isActive          Boolean  @default(true)
+  isEmailVerified   Boolean  @default(false)
 
-  isEmailVerified     Boolean   @default(false)
+  businessId        String?
+  business          Business? @relation(fields: [businessId], references: [id])
 
-  sessions            Session[]
+  sessions          Session[]
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  memberships       BusinessMember[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  businesses Business[] @relation("BusinessOwner")
 }
 
 model Session {
-  id            String   @id @default(uuid())
+  id                String   @id @default(uuid())
 
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
 
-  refreshToken  String
+  refreshToken      String
 
-  userAgent     String?
-  ipAddress     String?
+  userAgent         String?
+  ipAddress         String?
 
-  isValid       Boolean  @default(true)
+  isValid           Boolean  @default(true)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model AuditLog {
-  id          String   @id @default(uuid())
+  id                String   @id @default(uuid())
 
-  userId      String?
-  action      String
+  userId            String?
+  action            String
 
-  entity      String?
-  entityId    String?
+  entity            String?
+  entityId          String?
 
-  metadata    Json?
+  metadata          Json?
 
-  createdAt   DateTime @default(now())
+  createdAt         DateTime @default(now())
 }
 
 model PasswordResetToken {
-  id          String   @id @default(uuid())
+  id                String   @id @default(uuid())
 
-  email       String
+  email             String
+  token             String   @unique
 
-  token       String   @unique
+  expiresAt         DateTime
 
-  expiresAt   DateTime
-
-  createdAt   DateTime @default(now())
+  createdAt         DateTime @default(now())
 }
 
 model EmailVerificationToken {
-  id          String   @id @default(uuid())
+  id                String   @id @default(uuid())
 
-  email       String
+  email             String
+  token             String   @unique
 
-  token       String   @unique
+  expiresAt         DateTime
 
-  expiresAt   DateTime
+  createdAt         DateTime @default(now())
+}
 
-  createdAt   DateTime @default(now())
+model Subscription {
+  id                String   @id @default(uuid())
+
+  name              PlanType
+
+  price             Float
+
+  duration          Int
+
+  features          Json
+
+  businesses        Business[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Business {
+  id                String   @id @default(uuid())
+
+  name              String
+
+  slug              String   @unique
+
+  logo              String?
+
+  industryType      BusinessType
+
+  timezone          String?
+
+  settings          Json?
+
+  ownerId           String   @unique
+  owner             User     @relation("BusinessOwner", fields: [ownerId], references: [id])
+
+  subscriptionId    String?
+  subscription       Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  users             User[]
+
+  members           BusinessMember[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model BusinessMember {
+  id                String   @id @default(uuid())
+
+  userId            String
+  businessId        String
+
+  role              Role
+
+  user              User     @relation(fields: [userId], references: [id])
+
+  business          Business @relation(fields: [businessId], references: [id])
+
+  createdAt         DateTime @default(now())
+
+  @@unique([userId, businessId])
 }
