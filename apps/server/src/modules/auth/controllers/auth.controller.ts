@@ -43,25 +43,17 @@ export class AuthController {
           req.ip
         );
 
-      res.cookie(
-        "accessToken",
-        result.accessToken,
-        {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-        }
-      );
+      const cookieOptions = {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV === "production" ||
+          req.hostname === "localhost" ||
+          req.hostname === "127.0.0.1",
+        sameSite: "none" as const,
+      };
 
-      res.cookie(
-        "refreshToken",
-        result.refreshToken,
-        {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-        }
-      );
+      res.cookie("accessToken", result.accessToken, cookieOptions);
+      res.cookie("refreshToken", result.refreshToken, cookieOptions);
 
       return res.json({
         success: true,
@@ -92,25 +84,17 @@ export class AuthController {
           refreshToken
         );
 
-      res.cookie(
-        "accessToken",
-        result.accessToken,
-        {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-        }
-      );
+      const cookieOptions = {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV === "production" ||
+          req.hostname === "localhost" ||
+          req.hostname === "127.0.0.1",
+        sameSite: "none" as const,
+      };
 
-      res.cookie(
-        "refreshToken",
-        result.refreshToken,
-        {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-        }
-      );
+      res.cookie("accessToken", result.accessToken, cookieOptions);
+      res.cookie("refreshToken", result.refreshToken, cookieOptions);
 
       return res.json({
         success: true,

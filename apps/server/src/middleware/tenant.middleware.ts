@@ -11,19 +11,39 @@ export const tenantMiddleware =
 
         try {
 
-            const businessId =
-
+            let businessId =
                 req.user.businessId;
 
             if (!businessId) {
+                const ownerBusiness = await prisma.business.findFirst({
+                    where: {
+                        ownerId: req.user.id,
+                    },
+                });
 
+                if (ownerBusiness) {
+                    businessId = ownerBusiness.id;
+                }
+            }
+
+            if (!businessId) {
+                const membership = await prisma.businessMember.findFirst({
+                    where: {
+                        userId: req.user.id,
+                    },
+                });
+
+                if (membership) {
+                    businessId = membership.businessId;
+                }
+            }
+
+            if (!businessId) {
                 return res
                     .status(403)
                     .json({
-
                         message:
-                            "No business assigned"
-
+                            "No business assigned. Please create a business first using /api/v1/business/create or assign a business to this user."
                     });
 
             }

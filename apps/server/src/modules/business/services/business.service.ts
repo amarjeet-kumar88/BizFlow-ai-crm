@@ -1,4 +1,18 @@
 import prisma from "../../../prisma/client";
+import { BusinessType } from "@prisma/client";
+
+const VALID_INDUSTRY_TYPES: BusinessType[] = [
+  "COACHING",
+  "GYM",
+  "CLINIC",
+  "SCHOOL",
+  "RETAIL",
+  "REAL_ESTATE",
+  "SALON",
+  "TUITION",
+  "REPAIR",
+  "CONSULTANT",
+];
 
 export class BusinessService {
 
@@ -6,6 +20,17 @@ export class BusinessService {
         data: any,
         userId: string
     ) {
+
+        const industryType =
+            typeof data.industryType === "string"
+                ? data.industryType.trim().toUpperCase()
+                : data.industryType;
+
+        if (!VALID_INDUSTRY_TYPES.includes(industryType as BusinessType)) {
+            throw new Error(
+                "Invalid industryType. Use one of: COACHING, GYM, CLINIC, SCHOOL, RETAIL, REAL_ESTATE, SALON, TUITION, REPAIR, CONSULTANT"
+            );
+        }
 
         const existingBusiness =
             await prisma.business.findUnique({
@@ -34,7 +59,7 @@ export class BusinessService {
                     slug: data.slug,
 
                     industryType:
-                        data.industryType,
+                        industryType as BusinessType,
 
                     ownerId: userId
 

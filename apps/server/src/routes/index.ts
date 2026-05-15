@@ -6,6 +6,8 @@ import { roleMiddleware } from "../middleware/role.middleware";
 import businessRoutes
 from
 "../modules/business/routes/business.routes";
+import leadRoutes
+from "../modules/lead/routes/lead.routes";
 
 const router = Router();
 
@@ -25,6 +27,11 @@ router.use(
 "/business",
 businessRoutes
 );
+
+router.use(
+"/leads",
+leadRoutes
+)
 
 router.get(
   "/admin",

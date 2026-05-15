@@ -66,7 +66,7 @@ export default function Sidebar() {
 
       <div className="md:hidden fixed left-4 top-4 z-50">
         <Sheet>
-          <SheetTrigger>
+          <SheetTrigger asChild>
             <Button size="icon">
               <Menu />
             </Button>

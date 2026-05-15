@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AreaChart, Area, XAxis, ResponsiveContainer } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 const data = [
   { name: "Jan", revenue: 4000 },
@@ -10,22 +15,35 @@ const data = [
 ];
 
 export default function RevenueChart() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
-    <div style={{ width: "100%", height: 300 }}>
-      {mounted ? (
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            <XAxis dataKey="name" />
-            <Area dataKey="revenue" stroke="#4f46e5" fill="#c7d2fe" />
-          </AreaChart>
-        </ResponsiveContainer>
-      ) : null}
+    <div className="h-75 w-full min-w-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={data}
+          margin={{
+            top: 10,
+            right: 10,
+            left: 0,
+            bottom: 0,
+          }}
+        >
+          <XAxis
+            dataKey="name"
+            tickLine={false}
+            axisLine={false}
+          />
+
+          <Tooltip />
+
+          <Area
+            type="monotone"
+            dataKey="revenue"
+            stroke="#4f46e5"
+            fill="#c7d2fe"
+            strokeWidth={2}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 }

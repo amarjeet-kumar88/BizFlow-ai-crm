@@ -9,6 +9,11 @@ import {
 }
     from "../services/business.service";
 
+import {
+    createBusinessSchema
+}
+    from "../validators/business.validator";
+
 const service =
     new BusinessService();
 
@@ -21,13 +26,22 @@ export class BusinessController {
 
         try {
 
+            const parseResult =
+                createBusinessSchema.safeParse(req.body);
+
+            if (!parseResult.success) {
+                return res.status(400).json({
+                    success: false,
+                    message: parseResult.error.issues
+                        .map((issue) => issue.message)
+                        .join(" | "),
+                });
+            }
+
             const business =
                 await service.createBusiness(
-
-                    req.body,
-
+                    parseResult.data,
                     req.user.id
-
                 );
 
             return res.json({
